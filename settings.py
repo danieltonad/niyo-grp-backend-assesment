@@ -1,13 +1,17 @@
 import os
+from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 
+load_dotenv()
+
 class Settings(BaseSettings):
-    application: str
-    debug: bool = True
-    port: str = 9080
-    api_version: str = '/api/v1'
-    log_level: str = "INFO"
-    db_connection_str: str = os.environ.get("MG_CONN_STR")
+    APP_NAME: str = "Niyo Group Backend Assessment"
+    DEBUG: bool = True
+    API_VERSION: str = '/api/v1'
+    LOG_LEVEL: str = "INFO"
+    DB_CONNECTION_STR: str = os.getenv("MG_CONN_STR")
+    # JWT_SECRET: str = os.environ.get("JWT_SECRET")
+    # JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
 
 
 settings = Settings()

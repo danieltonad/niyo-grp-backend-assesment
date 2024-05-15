@@ -18,7 +18,7 @@ async def update_user_tasks_route(id: str):
     """update user tasks endpoint"""
     return ""
 
-@tasks.delete('/task/{id}', tags=['Update Tasks'], response_model="")
+@tasks.delete('/task/{id}', tags=['Delete Tasks'], response_model="")
 async def delete_user_tasks_route(id: str):
     """delete user tasks endpoint"""
     return ""

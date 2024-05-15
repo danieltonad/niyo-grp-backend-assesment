@@ -1,14 +1,24 @@
 from fastapi import APIRouter
 # from 
 
-users = APIRouter()
+tasks = APIRouter()
 
-@users.post('/register',tags=['Register User'] ,response_model="")
-async def register_user_route(data):
-    """ user registraton endpoint """
+@tasks.get('/tasks', tags=['List User Tasks'], response_model="")
+async def get_user_tasks_route():
+    """list user tasks endpoint"""
     return ""
 
-@users.post('/login',tags=['Login User'] ,response_model="")
-async def login_user_route(data):
-    """ user registraton endpoint """
+@tasks.post('/task', tags=['Add Tasks'], response_model="")
+async def add_user_tasks_route():
+    """create user tasks endpoint"""
+    return ""
+
+@tasks.put('/task/{id}', tags=['Update Tasks'], response_model="")
+async def update_user_tasks_route(id: str):
+    """update user tasks endpoint"""
+    return ""
+
+@tasks.delete('/task/{id}', tags=['Update Tasks'], response_model="")
+async def delete_user_tasks_route(id: str):
+    """delete user tasks endpoint"""
     return ""

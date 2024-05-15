@@ -1,6 +1,7 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
 from model.user import UserModel
 from settings import settings
+from fastapi.security import OAuth2PasswordRequestForm
 
 users = APIRouter()
 
@@ -15,6 +16,5 @@ async def login_user_route(data: UserModel):
     return ""
 
 @users.post(settings.OAUTH_URL,tags=['Login User'] ,response_model="")
-async def login_user_route(data: UserModel):
-    """ user registraton endpoint """
-    return ""
+async def o_login_user_route(form_data: OAuth2PasswordRequestForm = Depends()):
+    return await login_user_controller(email_or_username=form_data.username, password=form_data.password)

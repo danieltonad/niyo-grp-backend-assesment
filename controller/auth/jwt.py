@@ -6,6 +6,7 @@ from schema.users import user_serializer
 from fastapi.security import OAuth2PasswordBearer
 from settings import settings
 from fastapi import status
+from bson import ObjectId
 
 
 # Define an instance of OAuth2PasswordBearer
@@ -44,7 +45,7 @@ def decode_access_token(token: str = Depends(oauth2_scheme)):
         decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         if decoded_token.get('expiry') >= time():
             user = decoded_token['user']
-            user = user_serializer(users_db.get(user['id']))
+            user = user_serializer(users_db.find_one({'_id': ObjectId(user['id'])}))
             return user
         else:
             raise

@@ -9,9 +9,11 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     API_VERSION: str = '/api/v1'
     LOG_LEVEL: str = "INFO"
+    ACCESS_TOKEN_EXPIRE: int = 7200
+    OAUTH_URL="/o2auth/login"
     DB_CONNECTION_STR: str = os.getenv("MG_CONN_STR")
-    # JWT_SECRET: str = os.environ.get("JWT_SECRET")
-    # JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
+    JWT_SECRET: str = os.environ.get("JWT_SECRET")
+    JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
 
 
 settings = Settings()

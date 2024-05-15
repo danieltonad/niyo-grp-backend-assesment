@@ -1,4 +1,5 @@
 from fastapi import APIRouter
+from model.task import TaskModel
 # from 
 
 tasks = APIRouter()
@@ -9,12 +10,12 @@ async def get_user_tasks_route():
     return ""
 
 @tasks.post('/task', tags=['Add Tasks'], response_model="")
-async def add_user_tasks_route():
+async def add_user_tasks_route(data: TaskModel):
     """create user tasks endpoint"""
     return ""
 
 @tasks.put('/task/{id}', tags=['Update Tasks'], response_model="")
-async def update_user_tasks_route(id: str):
+async def update_user_tasks_route(id: str, data: TaskModel):
     """update user tasks endpoint"""
     return ""
 

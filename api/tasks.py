@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends
 from controller.auth.jwt import decode_access_token
 from model.task import TaskModel, UpdateTaskModel
-from controller.task_controller import list_user_tasks, create_task, delete_task
+from controller.task_controller import list_user_tasks, create_task, delete_task, update_task
 
 tasks = APIRouter()
 
@@ -18,7 +18,7 @@ async def add_user_tasks_route(task: TaskModel, user: str = Depends(decode_acces
 @tasks.put('/task/{id}', tags=['Update Tasks'])
 async def update_user_tasks_route(id: str, task: UpdateTaskModel, user: str = Depends(decode_access_token)):
     """update user tasks endpoint"""
-    return ""
+    return await update_task(user_id=user['id'], task_id=id, task=task)
 
 @tasks.delete('/task/{id}', tags=['Delete Tasks'])
 async def delete_user_tasks_route(id: str, user: str = Depends(decode_access_token)):

@@ -5,6 +5,7 @@ def task_serializer(task: dict) -> dict:
         'id': str(ObjectId(task.get('_id'))),
         'title': task.get('title'),
         'description': task.get('description') or "",
+        'completed': task.get('completed'),
     }
     
 def tasks_serializer(tasks: list) -> list:

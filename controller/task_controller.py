@@ -1,6 +1,6 @@
 from fastapi import status
 from config.database import tasks_db
-from model.task import TaskModel
+from model.task import TaskModel, UpdateTaskModel
 from response import AppResponse
 from schema.tasks import task_serializer, tasks_serializer
 from typing import Union
@@ -15,14 +15,18 @@ async def list_user_tasks(user_id: str) -> AppResponse:
     except Exception as e:
         print(e)
         return AppResponse(message="Unable to fetch tasks", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+   
     
 async def create_task(user_id: str, task: TaskModel) -> AppResponse:
     try:
         new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': task.completed, 'user_id': user_id})
         return AppResponse(message="Task Added!", status_code=status.HTTP_200_OK, data={'task_id': str(new_task.inserted_id)})
+    except errors.DuplicateKeyError:
+        return AppResponse(message=f"Task with title `{task.title}` already exist", status_code=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
         print(e)
         return AppResponse(message="Unable add tasks", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 async def find_task(user_id: str, task_id: str) -> Union[dict, bool]:
     try:
@@ -30,12 +34,26 @@ async def find_task(user_id: str, task_id: str) -> Union[dict, bool]:
         return task_serializer(task) if task else False
     except:
         return False
-
-async def task_title_exist(user_id: str, title: str) -> AppResponse:
-    ''
+ 
+      
+async def update_task(user_id: str, task_id: str ,task: UpdateTaskModel) -> AppResponse:
+    try:
+        task = await find_task(user_id=user_id, task_id=task_id)
+        if not task:
+            return AppResponse(message="Invalid task id provided", status_code=status.HTTP_400_BAD_REQUEST)
+        
+        tasks_db.update_one({'_id': ObjectId(task_id)}, {
+            "$set": {
+                'description': task.description,
+                'completed': task.completed
+            }
+        })
+        return AppResponse(message="Task updated!", status_code=status.HTTP_200_OK)
+        
+    except Exception as e:
+        print(e)
+        return AppResponse(message="Unable to update task", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-async def update_task_controller(user_id: str, task: dict) -> AppResponse:
-    ""
     
 async def delete_task(task_id: str, user_id: str) -> AppResponse:
     try:

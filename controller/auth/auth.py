@@ -17,7 +17,7 @@ async def login_user_controller(username: str, password:str):
             return AppResponse(message="incorrect user credentials!", status_code=status.HTTP_401_UNAUTHORIZED)
     except Exception as e:
         print(e)
-        return AppResponse(message="Unable to login!", status_code=status.HTTP_400_BAD_REQUEST)
+        return AppResponse(message="Unable to login!", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 async def register_user_controller(username: str, password: str):
@@ -28,5 +28,5 @@ async def register_user_controller(username: str, password: str):
         return AppResponse(message="Username already exists!", status_code=status.HTTP_409_CONFLICT)
     except Exception as e:
         print(e)
-        return AppResponse(message="Unable to create account!", status_code=status.HTTP_400_BAD_REQUEST)
+        return AppResponse(message="Unable to create account!", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     

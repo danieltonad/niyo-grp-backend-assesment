@@ -1,6 +1,5 @@
 from config.database import users_db
 from fastapi import status
-from schema.users import user_serializer
 from utilities.auth_utils import hash_pwd
 from .jwt import generate_access_token
 from response import AppResponse
@@ -14,6 +13,7 @@ async def login_user_controller(username: str, password:str):
         else:
             return AppResponse(message="incorrect user credentials!", status_code=status.HTTP_403_FORBIDDEN)
     except Exception as e:
+        print
         return AppResponse(message="Unable to login!", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 

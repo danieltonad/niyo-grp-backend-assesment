@@ -29,6 +29,7 @@ def generate_access_token(user: dict):
     token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return token_response(token)
 
+# todo
 def refresh_access_token(token: str):
     try:
         user = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])

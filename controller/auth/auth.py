@@ -3,6 +3,7 @@ from fastapi import status
 from schema.users import user_serializer
 from utilities.auth_utils import hash_pwd
 from .jwt import generate_access_token
+from response import AppResponse
 
 async def login_user_controller(username: str, password:str):
     try:
@@ -13,7 +14,7 @@ async def login_user_controller(username: str, password:str):
         else:
             return {'detail': 'invalid user credentials'}
     except:
-        return {'status_code': status.HTTP_500_INTERNAL_SERVER_ERROR, 'detail': 'Internal Server Error'}
+        return AppResponse(message="Unable to register user", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 
 async def register_user_controller(username: str, password: str):

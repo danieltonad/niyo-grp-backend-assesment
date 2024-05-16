@@ -19,7 +19,7 @@ async def list_user_tasks(user_id: str) -> AppResponse:
     
 async def create_task(user_id: str, task: TaskModel) -> AppResponse:
     try:
-        new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': task.completed, 'user_id': user_id})
+        new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': False, 'user_id': user_id})
         return AppResponse(message="Task Added!", status_code=status.HTTP_200_OK, data={'task_id': str(new_task.inserted_id)})
     except errors.DuplicateKeyError:
         return AppResponse(message=f"Task with title `{task.title}` already exist", status_code=status.HTTP_400_BAD_REQUEST)
@@ -36,17 +36,14 @@ async def find_task(user_id: str, task_id: str) -> Union[dict, bool]:
         return False
  
       
-async def update_task(user_id: str, task_id: str ,task: UpdateTaskModel) -> AppResponse:
+async def update_task(user_id: str, task_id: str, task: UpdateTaskModel) -> AppResponse:
     try:
-        task = await find_task(user_id=user_id, task_id=task_id)
-        if not task:
+        _task = await find_task(user_id=user_id, task_id=task_id)
+        if not _task:
             return AppResponse(message="Invalid task id provided", status_code=status.HTTP_400_BAD_REQUEST)
-        
+        print(task.dict_without_none())
         tasks_db.update_one({'_id': ObjectId(task_id)}, {
-            "$set": {
-                'description': task.description,
-                'completed': task.completed
-            }
+            "$set": task.dict_without_none()
         })
         return AppResponse(message="Task updated!", status_code=status.HTTP_200_OK)
         

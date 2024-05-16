@@ -15,7 +15,7 @@ async def add_user_tasks_route(task: TaskModel, user: str = Depends(decode_acces
     """create user tasks endpoint"""
     return await create_task(user_id=user['id'], task=task)
 
-@tasks.put('/task/{id}', tags=['Update Tasks'])
+@tasks.patch('/task/{id}', tags=['Update Tasks'])
 async def update_user_tasks_route(id: str, task: UpdateTaskModel, user: str = Depends(decode_access_token)):
     """update user tasks endpoint"""
     return await update_task(user_id=user['id'], task_id=id, task=task)

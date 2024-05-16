@@ -21,6 +21,7 @@ def token_response(token: str):
 def generate_access_token(user: dict):
     # remove password from dict
     user.pop('password')
+    
     # jwt payload
     payload = {
         'user': user,

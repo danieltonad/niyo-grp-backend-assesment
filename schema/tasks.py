@@ -1,5 +1,8 @@
+from bson import ObjectId
+
 def task_serializer(task: dict) -> dict:
     return {
+        'id': str(ObjectId(user.get('_id'))),
         'title': task.get('title'),
         'description': task.get('description') or "",
     }

@@ -1,6 +1,8 @@
+from bson import ObjectId
+
 def user_serializer(user: dict) -> dict:
     return {
-        'id': user.get('_id'),
+        'id': str(ObjectId(user.get('_id'))),
         'username': user.get('username'),
         'password': user.get('password')
     }

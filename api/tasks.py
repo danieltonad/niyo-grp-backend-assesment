@@ -25,7 +25,7 @@ async def update_user_tasks_route(id: str, task: UpdateTaskModel, background_tas
     """update user tasks endpoint"""
     return await update_task(user_id=user['id'], task_id=id, task=task, background_task=background_task)
 
-@tasks.get('/task/{id}', tags=['Update Tasks'])
+@tasks.get('/task/{id}', tags=['Find Tasks'])
 async def find_user_tasks_route(id: str, user: str = Depends(decode_access_token)) -> bool:
     """find user tasks endpoint"""
     return await find_task(user_id=user['id'], task_id=id)

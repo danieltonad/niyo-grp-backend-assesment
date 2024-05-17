@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
 from asyncio import Queue
 from typing import List, Dict
+from datetime import datetime
 
 load_dotenv()
 
@@ -17,5 +18,6 @@ class Settings(BaseSettings):
     JWT_SECRET: str = os.environ.get("JWT_SECRET")
     JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
     subscribers: List[Dict[str,Queue]] = []
+    current_date_time: datetime = datetime.today()
 
 settings = Settings()

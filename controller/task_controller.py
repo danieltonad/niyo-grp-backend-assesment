@@ -7,9 +7,11 @@ from typing import Union
 from bson import ObjectId
 from pymongo import errors
 from events.tasks import trigger_changes
+from datetime import datetime
+from settings import settings
 
 async def get_user_tasks(user_id: str) -> list:
-    return tasks_serializer(tasks_db.find({'user_id': user_id}))
+    return tasks_serializer(tasks_db.find({'user_id': user_id}).sort('updated_at', -1))
 
 async def list_user_tasks(user_id: str) -> AppResponse:
     try:
@@ -22,7 +24,7 @@ async def list_user_tasks(user_id: str) -> AppResponse:
     
 async def create_task(user_id: str, task: TaskModel, background_task: BackgroundTasks) -> AppResponse:
     try:
-        new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': False, 'user_id': user_id})
+        new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': False, 'user_id': user_id, 'created_at': settings.current_date_time, 'updated_at': settings.current_date_time})
         # even trigger in background
         background_task.add_task(trigger_changes, user_id)
         return AppResponse(message="Task Added!", status_code=status.HTTP_200_OK, data={'task_id': str(new_task.inserted_id)})
@@ -41,17 +43,19 @@ async def get_task(user_id: str, task_id: str) -> Union[dict, bool]:
         return False
 
 async def find_task(user_id: str, task_id: str) -> Union[dict, bool]:
-    task = await find_task(user_id=user_id, task_id=task_id)
+    task = await get_task(user_id=user_id, task_id=task_id)
     return AppResponse(message="Task found!", status_code=status.HTTP_200_OK, data={'task': task}) if task else AppResponse(message="Task not found!", status_code=status.HTTP_404_NOT_FOUND)
  
       
 async def update_task(user_id: str, task_id: str, task: UpdateTaskModel, background_task: BackgroundTasks) -> AppResponse:
     try:
-        _task = await find_task(user_id=user_id, task_id=task_id)
+        _task = await get_task(user_id=user_id, task_id=task_id)
         if not _task:
             return AppResponse(message="Invalid task id provided", status_code=status.HTTP_400_BAD_REQUEST)
+        update = task.dict_without_none()
+        update['updated_at'] = settings.current_date_time
         tasks_db.update_one({'_id': ObjectId(task_id)}, {
-            "$set": task.dict_without_none()
+            "$set": update
         })
         # even trigger in background
         background_task.add_task(trigger_changes, user_id)

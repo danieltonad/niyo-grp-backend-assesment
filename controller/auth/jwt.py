@@ -15,12 +15,12 @@ from typing import Union
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl=f"{settings.API_VERSION}{settings.OAUTH_URL}")
 
 
-def token_response(token: str):
+def token_response(token: str) -> dict:
     return {
         'access_token': token
     }
 
-def generate_access_token(user: dict):
+def generate_access_token(user: dict) -> dict:
     # remove password from dict
     user.pop('password')
     

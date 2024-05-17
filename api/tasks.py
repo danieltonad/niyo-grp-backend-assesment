@@ -1,9 +1,14 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from controller.auth.jwt import decode_access_token
 from model.task import TaskModel, UpdateTaskModel
 from controller.task_controller import list_user_tasks, create_task, delete_task, update_task
+import asyncio
+from typing import Set
+from fastapi.responses import StreamingResponse
 
 tasks = APIRouter()
+
+subscribers: Set[asyncio.Queue] = set()
 
 @tasks.get('/tasks', tags=['List User Tasks'])
 async def get_user_tasks_route(user: str = Depends(decode_access_token)):
@@ -16,7 +21,7 @@ async def add_user_tasks_route(task: TaskModel, user: str = Depends(decode_acces
     return await create_task(user_id=user['id'], task=task)
 
 @tasks.patch('/task/{id}', tags=['Update Tasks'])
-async def update_user_tasks_route(id: str, task: UpdateTaskModel, user: str = Depends(decode_access_token)):
+async def update_user_tasks_route(id: str, task: UpdateTaskModel, user: str = Depends(decode_access_token)) -> bool:
     """update user tasks endpoint"""
     return await update_task(user_id=user['id'], task_id=id, task=task)
 
@@ -24,3 +29,20 @@ async def update_user_tasks_route(id: str, task: UpdateTaskModel, user: str = De
 async def delete_user_tasks_route(id: str, user: str = Depends(decode_access_token)):
     """delete user tasks endpoint"""
     return await delete_task(task_id=id, user_id=user['id'])
+
+# subscribe endpoint
+@tasks.get('/stream/tasks')
+async def stream_task_route(request: Request, user: str = Depends(decode_access_token)):
+    async def event_generator():
+        queue = asyncio.Queue()
+        subscribers.append(queue)
+        
+        try:
+            while True:
+                if await request.is_disconnected():
+                    break
+                tasks = await queue.get()
+                yield f"tasks update"
+        except asyncio.CancelledError:
+            subscribers.remove(queue)
+    return StreamingResponse(event_generator, media_type="text/event-stream")

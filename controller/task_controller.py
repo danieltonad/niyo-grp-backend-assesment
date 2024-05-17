@@ -8,7 +8,6 @@ from bson import ObjectId
 from pymongo import errors
 from events.tasks import trigger_changes
 from settings import settings
-from logging import log
 
 async def get_user_tasks(user_id: str) -> list:
     return tasks_serializer(tasks_db.find({'user_id': user_id}).sort('updated_at', -1))
@@ -18,8 +17,7 @@ async def list_user_tasks(user_id: str) -> AppResponse:
         tasks = await get_user_tasks(user_id)
         return AppResponse(message=f"Tasks ({len(tasks)})", status_code=status.HTTP_200_OK, data={'data': tasks})  if tasks else AppResponse(message="Task empty!", status_code=status.HTTP_200_OK, data={'data': tasks})
     except Exception as e:
-        print(e)
-        # log(level=, mess)
+        print("Error:", e)
         return AppResponse(message="Unable to fetch tasks", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
     
@@ -32,7 +30,7 @@ async def create_task(user_id: str, task: TaskModel, background_task: Background
     except errors.DuplicateKeyError:
         return AppResponse(message=f"Task with title `{task.title}` already exist", status_code=status.HTTP_400_BAD_REQUEST)
     except Exception as e:
-        print(e)
+        print("Error:", e)
         return AppResponse(message="Unable add tasks", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -63,7 +61,7 @@ async def update_task(user_id: str, task_id: str, task: UpdateTaskModel, backgro
         return AppResponse(message="Task updated!", status_code=status.HTTP_200_OK)
         
     except Exception as e:
-        print(e)
+        print("Error:", e)
         return AppResponse(message="Unable to update task", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     
@@ -79,5 +77,5 @@ async def delete_task(task_id: str, user_id: str, background_task: BackgroundTas
         return AppResponse(message="task deleted!", status_code=status.HTTP_200_OK)
     
     except Exception as e:
-        print(e)
+        print("Error:", e)
         return AppResponse(message="Unable to delete task", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)

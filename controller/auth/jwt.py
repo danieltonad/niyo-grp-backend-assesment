@@ -7,7 +7,6 @@ from fastapi.security import OAuth2PasswordBearer
 from settings import settings
 from fastapi import status
 from bson import ObjectId
-from response import AppResponse
 from typing import Union
 
 
@@ -32,7 +31,7 @@ def generate_access_token(user: dict) -> dict:
     token = jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.JWT_ALGORITHM)
     return token_response(token)
 
-def decode_access_token(token: str = Depends(oauth2_scheme)) -> Union[AppResponse, dict]:
+def decode_access_token(token: str = Depends(oauth2_scheme)) -> Union[HTTPException, dict]:
     try:
         decoded_token = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
         if decoded_token.get('expiry') >= time():

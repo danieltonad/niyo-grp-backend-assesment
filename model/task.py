@@ -5,9 +5,9 @@ class TaskModel(BaseModel):
     title:str = constr(min_length=4, max_length=15)
     description: str = None
     @validator('title')
-    def title_must_be_alphanumeric(cls, v):
-        if not re.match(r'^[a-zA-Z0-9]+$', v):
-            raise ValueError('Title must be alphanumeric (letters and numbers only).')
+    def title_custom_validator(cls, v):
+        if not re.match(r'^[a-zA-Z0-9\s-]+$', v):
+            raise ValueError('Title allows (letters, numbers, whitespaces and hypens only).')
         return v
 
 

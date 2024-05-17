@@ -5,8 +5,7 @@ from controller.task_controller import list_user_tasks, create_task, delete_task
 from asyncio import Queue, sleep, CancelledError
 from typing import List, Dict
 from fastapi.responses import StreamingResponse
-from utilities.task_utils import remove_subscriber_by_user_id
-import json
+from events.tasks import event_generator
 
 tasks = APIRouter()
 
@@ -36,22 +35,5 @@ async def delete_user_tasks_route(id: str, user: str = Depends(decode_access_tok
 # subscribe endpoint
 @tasks.get('/stream/tasks')
 async def stream_task_route(request: Request, user: str = Depends(decode_access_token)):
-    return StreamingResponse(event_generator(user_id=user['id'], request=request), media_type="text/event-stream")
-
-
-async def event_generator(user_id: str, request: Request):
-        queue = Queue()
-        global subscribers
-        subscribers.append({'user_id': user_id, 'subscriber': queue})
-        print(subscribers)
-        try:
-            while True:
-                if await request.is_disconnected():
-                    subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)
-                    break
-                
-                for i in range(1,20):
-                    yield f"event: Tasks\ndata: {i}\n\n"
-                    await sleep(1)
-        except CancelledError:
-            subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)
+    global subscribers
+    return StreamingResponse(event_generator(user_id=user['id'], request=request, subscribers=subscribers), media_type="text/event-stream")

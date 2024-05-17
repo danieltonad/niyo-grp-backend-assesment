@@ -1,4 +1,3 @@
-```markdown
 # FastAPI Server Setup
 
 This guide will help you set up and run a FastAPI server.

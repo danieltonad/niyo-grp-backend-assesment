@@ -13,7 +13,6 @@ async def event_generator(user_id: str, request: Request):
                     remove_subscriber_by_user_id(user_id)
                     break
                 task = await queue.get()
-                print(task)
                 if task:
                     yield f"event: Tasks\ndata:{task} \n\n"
                     await sleep(1)

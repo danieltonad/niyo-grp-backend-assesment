@@ -1,5 +1,3 @@
-Sure! Here's a sample `README.md` file to guide users on how to start a FastAPI server, from creating a virtual environment to installing dependencies and starting the Uvicorn server.
-
 ```markdown
 # FastAPI Server Setup
 

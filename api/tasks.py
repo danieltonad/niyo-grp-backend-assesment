@@ -3,13 +3,15 @@ from controller.auth.jwt import decode_access_token
 from model.task import TaskModel, UpdateTaskModel
 from controller.task_controller import list_user_tasks, create_task, delete_task, update_task
 from asyncio import Queue, sleep, CancelledError
-from typing import Set
+from typing import List, Dict
 from fastapi.responses import StreamingResponse
+from utilities.task_utils import remove_subscriber_by_user_id
 import json
 
 tasks = APIRouter()
 
-subscribers: Set[Queue] = set()
+subscribers: List[Dict[str,Queue]]= []
+# subscribers.append({'user_id': "user['id']", 'subscriber': Queue()})
 
 @tasks.get('/tasks', tags=['List User Tasks'])
 async def get_user_tasks_route(user: str = Depends(decode_access_token)):
@@ -34,23 +36,22 @@ async def delete_user_tasks_route(id: str, user: str = Depends(decode_access_tok
 # subscribe endpoint
 @tasks.get('/stream/tasks')
 async def stream_task_route(request: Request, user: str = Depends(decode_access_token)):
-    # async def event_generator():
-    #     queue = Queue()
-    #     subscribers.append(queue)
-        
-    #     try:
-    #         while True:
-    #             if await request.is_disconnected():
-    #                 break
-    #             tasks = await queue.get()
-    #             print(tasks)
-    #             yield f"tasks update"
-    #     except CancelledError:
-    #         subscribers.remove(queue)
-    return StreamingResponse(waypoints_generator, media_type="text/event-stream")
+    return StreamingResponse(event_generator(user_id=user['id'], request=request), media_type="text/event-stream")
 
-async def waypoints_generator():
-    for waypoint in range(1,10):
-        data = json.dumps(waypoint)
-        yield f"event: locationUpdate\ndata: {data}\n\n"
-        await sleep(1)
+
+async def event_generator(user_id: str, request: Request):
+        queue = Queue()
+        global subscribers
+        subscribers.append({'user_id': user_id, 'subscriber': queue})
+        print(subscribers)
+        try:
+            while True:
+                if await request.is_disconnected():
+                    subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)
+                    break
+                
+                for i in range(1,20):
+                    yield f"event: Tasks\ndata: {i}\n\n"
+                    await sleep(1)
+        except CancelledError:
+            subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)

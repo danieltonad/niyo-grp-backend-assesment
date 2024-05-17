@@ -43,4 +43,4 @@ def decode_access_token(token: str = Depends(oauth2_scheme)) -> Union[AppRespons
             raise
 
     except:
-        raise AppResponse(message='user not authenticated', status_code=status.HTTP_401_UNAUTHORIZED)
+        raise HTTPException(detail='invalid or expired token', status_code=status.HTTP_401_UNAUTHORIZED)

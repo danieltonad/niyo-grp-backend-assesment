@@ -6,11 +6,14 @@ from schema.tasks import task_serializer, tasks_serializer
 from typing import Union
 from bson import ObjectId
 from pymongo import errors
+from events.tasks import trigger_changes
+
+async def get_user_tasks(user_id: str) -> list:
+    return tasks_serializer(tasks_db.find({'user_id': user_id}))
 
 async def list_user_tasks(user_id: str) -> AppResponse:
     try:
-        tasks = tasks_db.find({'user_id': user_id})
-        tasks = tasks_serializer(tasks)
+        tasks = get_user_tasks(user_id)
         return AppResponse(message=f"Tasks ({len(tasks)})", status_code=status.HTTP_200_OK, data={'data': tasks})  if tasks else AppResponse(message="Task empty!", status_code=status.HTTP_200_OK, data={'data': tasks})
     except Exception as e:
         print(e)
@@ -20,6 +23,7 @@ async def list_user_tasks(user_id: str) -> AppResponse:
 async def create_task(user_id: str, task: TaskModel) -> AppResponse:
     try:
         new_task = tasks_db.insert_one({'title': task.title, 'description': task.description, 'completed': False, 'user_id': user_id})
+        await trigger_changes(user_id)
         return AppResponse(message="Task Added!", status_code=status.HTTP_200_OK, data={'task_id': str(new_task.inserted_id)})
     except errors.DuplicateKeyError:
         return AppResponse(message=f"Task with title `{task.title}` already exist", status_code=status.HTTP_400_BAD_REQUEST)

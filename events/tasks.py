@@ -1,24 +1,28 @@
 from fastapi import Request
 from asyncio import sleep, Queue, CancelledError
-from utilities.task_utils import remove_subscriber_by_user_id
-from typing import List, Dict
+from utilities.task_utils import remove_subscriber_by_user_id, get_subscriber_by_user_id
+from settings import settings
 
 
-async def event_generator(user_id: str, request: Request, subscribers: List[Dict[str,Queue]]):
+async def event_generator(user_id: str, request: Request):
         queue = Queue()
-        subscribers.append({'user_id': user_id, 'subscriber': queue})
-        print(subscribers)
+        settings.subscribers.append({'user_id': user_id, 'subscriber': queue})
         try:
             while True:
                 if await request.is_disconnected():
-                    subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)
+                    remove_subscriber_by_user_id(user_id)
                     break
-                # task = await queue.get()
-                # print(task)
-                yield f"event: Tasks\ndata: {i}\n\n"
-                await sleep(1)
-                # for i in range(1,20):
-                #     yield f"event: Tasks\ndata: {i}\n\n"
-                #     await sleep(1)
+                task = await queue.get()
+                print(task)
+                if task:
+                    yield f"event: Tasks\ndata:{task} \n\n"
+                    await sleep(1)
         except CancelledError:
-            subscribers = remove_subscriber_by_user_id(user_id=user_id, subscribers=subscribers)
+            remove_subscriber_by_user_id(user_id)
+        
+async def trigger_changes(user_id: str):
+    subscriber = get_subscriber_by_user_id(user_id)
+    if subscriber:
+        from controller.task_controller import get_user_tasks
+        updated_tasks = await get_user_tasks(user_id)
+        await subscriber.put(updated_tasks)

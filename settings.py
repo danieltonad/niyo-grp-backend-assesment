@@ -1,6 +1,8 @@
 import os
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings
+from asyncio import Queue
+from typing import List, Dict
 
 load_dotenv()
 
@@ -14,6 +16,6 @@ class Settings(BaseSettings):
     DB_CONNECTION_STR: str = os.getenv("MG_CONN_STR")
     JWT_SECRET: str = os.environ.get("JWT_SECRET")
     JWT_ALGORITHM: str = os.environ.get("JWT_ALGORITHM")
-
+    subscribers: List[Dict[str,Queue]] = []
 
 settings = Settings()

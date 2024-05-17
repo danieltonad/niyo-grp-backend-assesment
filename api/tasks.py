@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request, BackgroundTasks
 from controller.auth.jwt import decode_access_token
 from model.task import TaskModel, UpdateTaskModel
 from controller.task_controller import list_user_tasks, create_task, delete_task, update_task
-from asyncio import Queue, sleep, CancelledError
+from asyncio import Queue
 from typing import List, Dict
 from fastapi.responses import StreamingResponse
 from events.tasks import event_generator
@@ -36,4 +36,4 @@ async def delete_user_tasks_route(id: str, user: str = Depends(decode_access_tok
 @tasks.get('/stream/tasks')
 async def stream_task_route(request: Request, user: str = Depends(decode_access_token)):
     global subscribers
-    return StreamingResponse(event_generator(user_id=user['id'], request=request, subscribers=subscribers), media_type="text/event-stream")
+    return StreamingResponse(event_generator(user_id=user['id'], request=request), media_type="text/event-stream")

@@ -2,6 +2,7 @@ from fastapi import Request
 from asyncio import sleep, Queue, CancelledError
 from utilities.task_utils import remove_subscriber_by_user_id, get_subscriber_by_user_id
 from settings import settings
+import json
 
 
 async def event_generator(user_id: str, request: Request):
@@ -14,7 +15,7 @@ async def event_generator(user_id: str, request: Request):
                     break
                 task = await queue.get()
                 if task:
-                    yield f"event: Tasks\ndata:{task} \n\n"
+                    yield f"event: TaskUpdate\ndata:{json.dumps(task)} \n\n"
                     await sleep(1)
         except CancelledError:
             remove_subscriber_by_user_id(user_id)

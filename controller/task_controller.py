@@ -7,8 +7,8 @@ from typing import Union
 from bson import ObjectId
 from pymongo import errors
 from events.tasks import trigger_changes
-from datetime import datetime
 from settings import settings
+from logging import log
 
 async def get_user_tasks(user_id: str) -> list:
     return tasks_serializer(tasks_db.find({'user_id': user_id}).sort('updated_at', -1))
@@ -19,6 +19,7 @@ async def list_user_tasks(user_id: str) -> AppResponse:
         return AppResponse(message=f"Tasks ({len(tasks)})", status_code=status.HTTP_200_OK, data={'data': tasks})  if tasks else AppResponse(message="Task empty!", status_code=status.HTTP_200_OK, data={'data': tasks})
     except Exception as e:
         print(e)
+        # log(level=, mess)
         return AppResponse(message="Unable to fetch tasks", status_code=status.HTTP_500_INTERNAL_SERVER_ERROR)
    
     

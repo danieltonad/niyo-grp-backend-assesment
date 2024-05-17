@@ -35,7 +35,7 @@ python -m venv env
 - On **macOS** and **Linux**:
 
   ```bash
-  source venv/bin/activate
+  source env/bin/activate
   ```
 
 ### 4. Install Dependencies
